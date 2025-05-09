@@ -1,0 +1,443 @@
+{
+  "createdAt": "2025-05-07T02:39:57.654Z",
+  "updatedAt": "2025-05-07T08:38:05.742Z",
+  "id": "TzkVo2KsMoEMXBCu",
+  "name": "backup n8n",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        -60
+      ],
+      "id": "f7c82b24-0d76-466e-a06d-de8e59d38669",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{$now.setZone('Asia/Taipei').format('yyyy-MM-dd') }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1YpkS_bd_thmKwYBOrfCjmel634dOxIXW",
+          "mode": "list",
+          "cachedResultName": "n8n_backup",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1YpkS_bd_thmKwYBOrfCjmel634dOxIXW"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -20,
+        -60
+      ],
+      "id": "dc1b7fcf-75ab-4e4d-848f-1596f0ebde1b",
+      "name": "create_date_folder",
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "biLW7LYM8PZONIJU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "workflows",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        180,
+        -180
+      ],
+      "id": "367f0678-19b7-4742-b074-95800a0bcfe1",
+      "name": "create_workflows_folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "biLW7LYM8PZONIJU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "n8n export:workflow --backup --output=/tmp/workflows"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        360,
+        -180
+      ],
+      "id": "67d0902e-607e-4aa0-8078-568d84613071",
+      "name": "export_workflows"
+    },
+    {
+      "parameters": {
+        "command": "n8n export:credentials --backup --decrypted --output=/tmp/credentials"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        360,
+        60
+      ],
+      "id": "72a6905b-300c-4e26-95c0-85aa6aab7e89",
+      "name": "export_credentials"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9b86404b-0489-41b8-bc26-a5c8cecc6b3d",
+              "leftValue": "={{$json.exitCode}}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        -180
+      ],
+      "id": "0f917b93-08ae-4ab6-8171-1d5271d07915",
+      "name": "check_workflows_export"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9b86404b-0489-41b8-bc26-a5c8cecc6b3d",
+              "leftValue": "={{$json.exitCode}}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        60
+      ],
+      "id": "913a5e42-4cac-42ce-acd5-0c5413662d49",
+      "name": "check_credentials_export"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/tmp/workflows/*.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        840,
+        -200
+      ],
+      "id": "c6697dda-ba58-4f8d-9002-a13200252641",
+      "name": "read_workflows_file"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/tmp/credentials/*.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        860,
+        40
+      ],
+      "id": "07224505-502b-4d3b-8d3b-3649c6d2dd1a",
+      "name": "read_credentials_file"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "=",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('create_credentials_folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1180,
+        40
+      ],
+      "id": "51d63449-b43e-4d83-83e1-eb24d4ce3c70",
+      "name": "upload_credentials_backup_file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "biLW7LYM8PZONIJU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "=",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('create_workflows_folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1180,
+        -200
+      ],
+      "id": "93159674-cec4-42c5-81cd-60fd9014d690",
+      "name": "upload_workflows_backup_file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "biLW7LYM8PZONIJU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "credentials",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        180,
+        60
+      ],
+      "id": "4165d46e-207c-4056-96c5-57d1da4d148f",
+      "name": "create_credentials_folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "biLW7LYM8PZONIJU",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "create_date_folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_date_folder": {
+      "main": [
+        [
+          {
+            "node": "create_workflows_folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "create_credentials_folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_workflows_folder": {
+      "main": [
+        [
+          {
+            "node": "export_workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "export_workflows": {
+      "main": [
+        [
+          {
+            "node": "check_workflows_export",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "export_credentials": {
+      "main": [
+        [
+          {
+            "node": "check_credentials_export",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_workflows_export": {
+      "main": [
+        [
+          {
+            "node": "read_workflows_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_credentials_export": {
+      "main": [
+        [
+          {
+            "node": "read_credentials_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read_workflows_file": {
+      "main": [
+        [
+          {
+            "node": "upload_workflows_backup_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read_credentials_file": {
+      "main": [
+        [
+          {
+            "node": "upload_credentials_backup_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_workflows_backup_file": {
+      "main": [
+        []
+      ]
+    },
+    "create_credentials_folder": {
+      "main": [
+        [
+          {
+            "node": "export_credentials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "0b9d3e10-076f-43a2-bdf0-be50be0ee4b3",
+  "triggerCount": 0,
+  "tags": []
+}
